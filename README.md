@@ -7,4 +7,4 @@ Queues are, as the same suggests, structures that you can push into at one end a
 
 Below Image shows some of the important collection-based classes from package `java.util`. It is intentionally not complete due to space limitation.
 
-[](java-collection-framework.png)
+![](java-collection-framework.png)
