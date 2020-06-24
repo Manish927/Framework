@@ -10,3 +10,14 @@ Below Diagram shows some of the important collection-based classes from package 
 ![](java-collection-framework.png)
 
 The Collections Framework: Rectangles are interfaces; ovals classes; Solid lines are inheritance; dashed lines represent implements
+
+---------------------------
+Interfaces Implementations
+---------------------------
+
+|    |Resizable Array|Hashed Table|Linked List|Balanced Tree|
+|:--|:---|:---|:----|:----|
+|List|ArrayList, Vector||LinkedList|||
+|Set||HashSet||TreeSet||
+|Map||HashMap, HashTable||TreeMap|
+|Queue|Deque, BlockingQueue, etc.
