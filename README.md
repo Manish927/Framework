@@ -8,3 +8,5 @@ Queues are, as the same suggests, structures that you can push into at one end a
 Below Diagram shows some of the important collection-based classes from package `java.util`. It is intentionally not complete due to space limitation.
 
 ![](java-collection-framework.png)
+
+The Collections Framework: Rectangles are interfaces; ovals classes; Solid lines are inheritance; dashed lines represent implements
