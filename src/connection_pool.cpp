@@ -1,5 +1,7 @@
 #include "connection_pool.h"
 
+#include <cassert>
+
 namespace common {
 
     ConnectionPool::ConnectionPool(const cnx_opt& opts, const pool_opt& pool_opts) :
@@ -10,7 +12,7 @@ namespace common {
     }
 
     ConnectionPool::ConnectionPool(ConnectionPool &&that) {
-        std::lock_guard<std::mutex> lock(that._mutex);
+        std::scoped_lock lock{that._mutex};
         _move(std::move(that));
     }
 
@@ -40,6 +42,52 @@ namespace common {
         auto connection = _fetch(lock);
 
         auto cnx_lifetime = _pool_opts.cnx_lifetime;
-        auto cnx_idle_time = _pool_opts.cnx_ide_time
+        auto cnx_idle_time = _pool_opts.cnx_ide_time;
+
+        try {
+            connection = _create(cnx_opts);
+        } catch (const std::exception& e) {
+            release(std::move(connection));
+            throw;
+        }
+
+        return connection;
     }
+
+    Connection ConnectionPool::_fetch(std::unique_lock<std::mutex>& lock) {
+        if (_pool.empty()) {
+            if (_used_cnx == _pool_opts.size) {
+                _wait_for_cnx(lock);
+            }
+            else {
+                ++_used_cnx;
+                return Connection(cnx_opt, Connection::Dummy{});
+            }
+        }
+
+        return _fetch();
+    }
+
+    Connection ConnectionPool::_fetch() {
+        assert(!_pool.empty());
+
+        auto connection = std::move(_pool.front());
+        _pool.pop_front();
+        return connection;
+    }
+
+    void ConnectionPool::release(Connection cnx) {
+        {
+            std::scoped_lock lock{_mutex};
+            _pool.push_back(cnx);
+        }
+        _cv.notify_one();
+    }
+
+    Connection ConnectionPool::create() {
+        std::scoped_lock lock{_mutex};
+
+        return Connection(cnx_opts);
+    }
+
 }
